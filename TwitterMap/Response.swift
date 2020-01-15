@@ -26,6 +26,6 @@ struct Response: Codable {
 
 extension Response {
     enum CodingKeys: String, CodingKey {
-      case tweets = "results"
+      case tweets = "statuses"
     }
 }

@@ -1,29 +1,58 @@
 //
 //  Tweet.swift
-//  TwitterLBTA
+//  TwitterMap
 //
-//  Created by Brian Voong on 1/24/17.
-//  Copyright © 2017 Lets Build That App. All rights reserved.
+//  Created by Russell Weber on 2020-01-14.
+//  Copyright © 2020 Russell Weber. All rights reserved.
 //
 
 import Foundation
 
-struct Tweet: Codable {
+struct Tweet: Codable, Hashable {
+    
+    enum Language: String {
+        case en
+        case fr
+        case all
+    }
+    
     let id: Int
     let text: String
     let user: User
     let geocode: Location?
-    
-    let createdAt: String
-    
+    let lang: String
+    let mediaURL: String?
+    var retweeted: Bool
+    var liked: Bool
+        
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         
         self.id = try container.decode(Int.self, forKey: .id)
         self.text = try container.decode(String.self, forKey: .text)
         self.user = try container.decode(User.self, forKey: .user)
-        self.geocode = try container.decodeIfPresent(Location.self, forKey: .geocode)
-        self.createdAt = try container.decode(String.self, forKey: .createdAt)
+        self.lang = try container.decode(String.self, forKey: .lang)
+        self.geocode = try container.decodeIfPresent(Location.self, forKey: .geocode) ?? Location()
+        self.retweeted = try container.decode(Bool.self, forKey: .retweeted)
+        self.liked = try container.decode(Bool.self, forKey: .liked)
+        
+        
+        let entities = try container.nestedContainer(keyedBy: CodingKeys.self, forKey: .entities)
+        if let media = try? entities.nestedContainer(keyedBy: CodingKeys.self, forKey: .media) {
+            self.mediaURL = try media.d
+            
+        } else {
+            self.mediaURL = nil
+        }
+    }
+    
+    
+    static func == (lhs: Tweet, rhs: Tweet) -> Bool {
+        return lhs.id == rhs.id
+    }
+    
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
     }
     
     func encode(to encoder: Encoder) throws {
@@ -33,19 +62,26 @@ struct Tweet: Codable {
         try statuses.encode(self.text, forKey: .text)
         try statuses.encode(self.user, forKey: .user)
         try statuses.encode(self.geocode, forKey: .geocode)
-        try statuses.encode(self.createdAt, forKey: .createdAt)
-        
+        try statuses.encode(self.lang, forKey: .lang)
+        try statuses.encode(self.liked, forKey: .liked)
+        try statuses.encode(self.retweeted, forKey: .retweeted)
+
     }
 }
 
 extension Tweet {
     enum CodingKeys: String, CodingKey {
         case id
-        case text
+        case text = "full_text"
         case user
         case geocode = "place"
-        case createdAt = "created_at"
         case statuses
+        case lang
+        case liked = "favorited"
+        case retweeted
+        case entities = "extended_entities"
+        case mediaURL = "media_url"
+        case media
     
     }
 }
@@ -62,6 +98,11 @@ struct Location: Codable {
         var second = try first.nestedUnkeyedContainer()
         self.lat = try second.decode(Double.self)
         self.long = try second.decode(Double.self)
+    }
+    
+    init() {
+        self.long = 0.0
+        self.lat = 0.0
     }
     
     func encode(to encoder: Encoder) throws {
