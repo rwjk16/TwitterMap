@@ -14,7 +14,11 @@ class APIClient {
     private static let headers = ["Authorization": "Bearer \(oAuthToken)"]
     private static var params = ["q":""]
     
-    public static var fetchedTweets = [Tweet]()
+    public static var fetchedTweets = [Tweet]() {
+        didSet {
+            APIClient.fetchTWTRTweets(tweets: self.fetchedTweets)
+        }
+    }
     
     public static var twtrTweets = [TWTRTweet]()
     
@@ -45,6 +49,7 @@ class APIClient {
         params["q"] = string
         params["tweet_mode"] = "extended"
         params["lang"] = lang
+        params["count"] = "100"
         DispatchQueue.global(qos: .background).async {
             AF.request("https://api.twitter.com/1.1/search/tweets.json", method: .get, parameters: params, encoding: URLEncoding.default, headers: HTTPHeaders.init(APIClient.headers), interceptor: nil).responseDecodable (decoder: jsonDecoder){ (response: AFDataResponse<Response>) in
                 print("RESULT: \(response)")

@@ -91,23 +91,13 @@
                                     <outlet property="delegate" destination="Mah-rc-GaH" id="4KT-Q4-neE"/>
                                 </connections>
                             </tableView>
-                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="OC9-9K-1NW" customClass="SearchFooter" customModule="TwitterMap" customModuleProvider="target">
-                                <rect key="frame" x="0.0" y="852" width="414" height="44"/>
-                                <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                                <constraints>
-                                    <constraint firstAttribute="height" constant="44" id="kPG-0I-sPK"/>
-                                </constraints>
-                            </view>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <constraints>
-                            <constraint firstItem="zJQ-qw-xM1" firstAttribute="trailing" secondItem="OC9-9K-1NW" secondAttribute="trailing" id="AdX-bY-6Zn"/>
                             <constraint firstItem="zJQ-qw-xM1" firstAttribute="bottom" secondItem="qf0-uO-BHs" secondAttribute="bottom" id="AsA-FQ-edz"/>
                             <constraint firstItem="qf0-uO-BHs" firstAttribute="leading" secondItem="zJQ-qw-xM1" secondAttribute="leading" id="H8M-UH-cFt"/>
                             <constraint firstItem="qf0-uO-BHs" firstAttribute="trailing" secondItem="zJQ-qw-xM1" secondAttribute="trailing" id="UhH-Bs-c4g"/>
                             <constraint firstItem="qf0-uO-BHs" firstAttribute="top" secondItem="zJQ-qw-xM1" secondAttribute="top" id="clA-gT-ZAi"/>
-                            <constraint firstItem="OC9-9K-1NW" firstAttribute="leading" secondItem="zJQ-qw-xM1" secondAttribute="leading" id="gaf-eA-Jhe"/>
-                            <constraint firstAttribute="bottom" secondItem="OC9-9K-1NW" secondAttribute="bottom" id="wIC-Gz-vo9"/>
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="zJQ-qw-xM1"/>
                     </view>
@@ -132,8 +122,6 @@
                     </navigationItem>
                     <simulatedStatusBarMetrics key="simulatedStatusBarMetrics"/>
                     <connections>
-                        <outlet property="searchFooter" destination="OC9-9K-1NW" id="Kcf-xw-eOF"/>
-                        <outlet property="searchFooterBottomConstraint" destination="wIC-Gz-vo9" id="fqk-qd-UoP"/>
                         <outlet property="tableView" destination="qf0-uO-BHs" id="g7b-kM-8j6"/>
                         <outlet property="view" destination="iEA-El-ItF" id="7xO-Kw-giz"/>
                     </connections>

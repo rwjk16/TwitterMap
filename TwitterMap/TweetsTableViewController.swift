@@ -12,10 +12,8 @@ import TwitterKit
 
 class TweetsTableViewController: UIViewController {
     @IBOutlet var tableView: UITableView!
-    @IBOutlet var searchFooter: SearchFooter!
-    @IBOutlet var searchFooterBottomConstraint: NSLayoutConstraint!
     
-    var prototypeCell: TWTRTweetTableViewCell?
+    //    var prototypeCell: TWTRTweetTableViewCell?
     
     let tweetTableCellReuseIdentifier = "cell"
     
@@ -34,6 +32,8 @@ class TweetsTableViewController: UIViewController {
         setupSearchController()
         //        tableView.register(UINib(nibName: TweetTableViewCell.nibName(), bundle: nil), forCellReuseIdentifier: TweetTableViewCell.reuseIdentifier())
         self.tableView.register(TWTRTweetTableViewCell.self, forCellReuseIdentifier: tweetTableCellReuseIdentifier)
+        self.tableView.estimatedRowHeight = 100
+        tableView.rowHeight = UITableView.automaticDimension
         tableView.dataSource = self
         tableView.delegate = self
         self.tweets = APIClient.twtrTweets
@@ -44,6 +44,7 @@ class TweetsTableViewController: UIViewController {
         if let indexPath = tableView.indexPathForSelectedRow {
             tableView.deselectRow(at: indexPath, animated: true)
         }
+        
     }
     
     var isSearchBarEmpty: Bool {
@@ -51,30 +52,27 @@ class TweetsTableViewController: UIViewController {
     }
     
     var isFiltering: Bool {
-        let searchBarScopeIsFiltering = searchController.searchBar.selectedScopeButtonIndex != 0
-        return searchController.isActive && (!isSearchBarEmpty || searchBarScopeIsFiltering)
+        return searchController.isActive && (!isSearchBarEmpty)
     }
     
     func filterContentForSearchText(_ searchText: String, lang: String) {
-        DispatchQueue.global(qos: .background).async {
-            APIClient.search(for: searchText, lang: lang) { (result) in
-                switch result {
-                case .success(let response):
-                    APIClient.client.loadTweets(withIDs: response.tweets.map({ (tweet) -> String in
-                        return String(tweet.id)
-                    }), completion: { (tweets, error) in
-                        if let tweets = tweets {
-                            self.filteredTweets = tweets
-                        } else {
-                            print(error!)
+        APIClient.search(for: searchText, lang: lang) { (result) in
+            switch result {
+            case .success(let response):
+                APIClient.client.loadTweets(withIDs: response.tweets.map({ (tweet) -> String in
+                    return String(tweet.id)
+                }), completion: { (tweets, error) in
+                    if let tweets = tweets {
+                        self.filteredTweets = tweets
+                        DispatchQueue.main.async {
+                            self.tableView.reloadData()
                         }
-                    })
-                    DispatchQueue.main.async {
-                        self.tableView.reloadData()
+                    } else {
+                        print(error!)
                     }
-                case .failure(let error):
-                    print(error.localizedDescription)
-                }
+                })
+            case .failure(let error):
+                print(error.localizedDescription)
             }
         }
     }
@@ -82,7 +80,6 @@ class TweetsTableViewController: UIViewController {
     
     func handleKeyboard(notification: Notification) {
         guard notification.name == UIResponder.keyboardWillChangeFrameNotification else {
-            searchFooterBottomConstraint.constant = 0
             view.layoutIfNeeded()
             return
         }
@@ -92,11 +89,6 @@ class TweetsTableViewController: UIViewController {
             else {
                 return
         }
-        let keyboardHeight = keyboardFrame.cgRectValue.size.height
-        UIView.animate(withDuration: 0.1, animations: { () -> Void in
-            self.searchFooterBottomConstraint.constant = keyboardHeight
-            self.view.layoutIfNeeded()
-        })
     }
     
     func setupSearchController() {
@@ -121,40 +113,29 @@ extension TweetsTableViewController: UITableViewDataSource, UITableViewDelegate 
     func tableView(_ tableView: UITableView,
                    numberOfRowsInSection section: Int) -> Int {
         if isFiltering {
-            searchFooter.setIsFilteringToShow(filteredItemCount:
-                filteredTweets.count, of: tweets.count)
             return filteredTweets.count
         }
-        
-        searchFooter.setNotFiltering()
         return tweets.count
     }
     
     
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-           guard let cell = tableView.dequeueReusableCell(withIdentifier: tweetTableCellReuseIdentifier) as? TWTRTweetTableViewCell else { return UITableViewCell() }
-             let tweet: TWTRTweet
-             if isFiltering {
-                 tweet = filteredTweets[indexPath.row]
-             } else {
-                 tweet = tweets[indexPath.row]
-             }
-
-             cell.tweetView.showActionButtons = true
-
-             cell.configure(with: tweet)
-
-             return cell
-    }
-    
-    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        let tweet = self.tweets[indexPath.row]
-        self.prototypeCell?.configure(with: tweet)
+        guard let cell = tableView.dequeueReusableCell(withIdentifier: tweetTableCellReuseIdentifier) as? TWTRTweetTableViewCell else { return UITableViewCell() }
+        let tweet: TWTRTweet
+        if isFiltering {
+            tweet = filteredTweets[indexPath.row]
+        } else {
+            tweet = tweets[indexPath.row]
+        }
         
-        return TWTRTweetTableViewCell.height(for: tweet, style: TWTRTweetViewStyle.compact, width: self.view.bounds.width , showingActions:true)
+        cell.tweetView.showActionButtons = true
+        cell.prepareForReuse()
+        cell.configure(with: tweet)
+        
+        
+        return cell
     }
-    
 }
 
 extension TweetsTableViewController: UISearchResultsUpdating, UISearchBarDelegate {
@@ -167,63 +148,5 @@ extension TweetsTableViewController: UISearchResultsUpdating, UISearchBarDelegat
     func searchBar(_ searchBar: UISearchBar, selectedScopeButtonIndexDidChange selectedScope: Int) {
         let lang = String(searchBar.scopeButtonTitles![selectedScope])
         filterContentForSearchText(searchBar.text!, lang: lang)
-    }
-}
-
-class SearchFooter: UIView {
-    let label = UILabel()
-    
-    override init(frame: CGRect) {
-        super.init(frame: frame)
-        
-        configureView()
-    }
-    
-    required init?(coder: NSCoder) {
-        super.init(coder: coder)
-        
-        configureView()
-    }
-    
-    override func draw(_ rect: CGRect) {
-        label.frame = bounds
-    }
-    
-    func setNotFiltering() {
-        label.text = ""
-        hideFooter()
-    }
-    
-    func setIsFilteringToShow(filteredItemCount: Int, of totalItemCount: Int) {
-        if (filteredItemCount == totalItemCount) {
-            setNotFiltering()
-        } else if (filteredItemCount == 0) {
-            label.text = "No items match your query"
-            showFooter()
-        } else {
-            label.text = "Filtering \(filteredItemCount) of \(totalItemCount)"
-            showFooter()
-        }
-    }
-    
-    func hideFooter() {
-        UIView.animate(withDuration: 0.7) {
-            self.alpha = 0.0
-        }
-    }
-    
-    func showFooter() {
-        UIView.animate(withDuration: 0.7) {
-            self.alpha = 1.0
-        }
-    }
-    
-    func configureView() {
-        backgroundColor = UIColor.blue
-        alpha = 0.0
-        
-        label.textAlignment = .center
-        label.textColor = UIColor.white
-        addSubview(label)
     }
 }
