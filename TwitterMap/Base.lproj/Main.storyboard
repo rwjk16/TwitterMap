@@ -37,9 +37,7 @@
                             <rect key="frame" x="207" y="22" width="0.0" height="0.0"/>
                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                             <subviews>
-                                <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="twitterLogo" translatesAutoresizingMaskIntoConstraints="NO" id="Hpq-b6-oGB">
-                                    <rect key="frame" x="0.0" y="0.0" width="150" height="33"/>
-                                </imageView>
+                                <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="twitterLogo" translatesAutoresizingMaskIntoConstraints="NO" id="Hpq-b6-oGB"/>
                             </subviews>
                             <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                             <constraints>
@@ -80,7 +78,6 @@
         <!--Tweets Table View Controller-->
         <scene sceneID="qaU-ke-AUL">
             <objects>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="3Nn-5e-fjw" userLabel="First Responder" sceneMemberID="firstResponder"/>
                 <viewController id="Mah-rc-GaH" customClass="TweetsTableViewController" customModule="TwitterMap" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="iEA-El-ItF">
                         <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
@@ -91,9 +88,10 @@
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                 <connections>
                                     <outlet property="dataSource" destination="Mah-rc-GaH" id="Bgr-FH-yut"/>
+                                    <outlet property="delegate" destination="Mah-rc-GaH" id="4KT-Q4-neE"/>
                                 </connections>
                             </tableView>
-                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="OC9-9K-1NW" customClass="SearchFooter" customModule="CandySearch" customModuleProvider="target">
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="OC9-9K-1NW" customClass="SearchFooter" customModule="TwitterMap" customModuleProvider="target">
                                 <rect key="frame" x="0.0" y="852" width="414" height="44"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                 <constraints>
@@ -140,6 +138,7 @@
                         <outlet property="view" destination="iEA-El-ItF" id="7xO-Kw-giz"/>
                     </connections>
                 </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="3Nn-5e-fjw" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="2002.8985507246377" y="544.41964285714278"/>
         </scene>

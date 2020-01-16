@@ -1,19 +1,14 @@
 import Foundation
 
-public struct Tweet : Codable {
+public struct RetweetedStatus : Codable {
     public let createdAt : Date
     public let id : Int
     public let fullText : String
     public let displayTextRange : [Int]
     public let entities : TweetEntities
-    public let extededEntities: TweetEntities?
-    public let source : String
-    public let inReplyToStatusId : Int?
-    public let inReplyToUserId : Int?
-    public let inReplyToScreenName : String?
     public let user : TweetUser
-    public let geocode: Location?
-    public let retweetedStatus : RetweetedStatus?
+    public let source : String
+    public let extendedEntities : TweetEntities?
     public let isQuoteStatus : Bool
     public let retweetCount : Int
     public let favoriteCount : Int
@@ -22,15 +17,14 @@ public struct Tweet : Codable {
     public let possiblySensitive : Bool?
     public let possiblySensitiveAppealable : Bool?
     public let lang : String
-    
 }
 
-extension Tweet : TweetProtocol {
+extension RetweetedStatus : TweetProtocol {
     public var quotedTweet: TweetProtocol? {
-        return self.retweetedStatus
+        return nil
     }
     
-    public var retweetedTweet: TweetProtocol? {
-        return self.retweetedStatus
+    public var retweetedStatus: TweetProtocol? {
+        return nil
     }
 }

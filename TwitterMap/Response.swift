@@ -9,23 +9,23 @@
 import Foundation
 
 struct Response: Codable {
-  let tweets: [Tweet]
-
-  init(from decoder: Decoder) throws {
-    let container = try decoder.container(keyedBy: CodingKeys.self)
-    self.tweets = try container.decode([Tweet].self, forKey: .tweets)
-  }
+    let tweets: [Tweet]
     
-
-  func encode(to encoder: Encoder) throws {
-    var container = encoder.container(keyedBy: CodingKeys.self)
-    try container.encode(self.tweets, forKey: .tweets)
-   }
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        self.tweets = try container.decode([Tweet].self, forKey: .tweets)
+    }
+    
+    
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(self.tweets, forKey: .tweets)
+    }
 }
 
 
 extension Response {
     enum CodingKeys: String, CodingKey {
-      case tweets = "statuses"
+        case tweets = "statuses"
     }
 }

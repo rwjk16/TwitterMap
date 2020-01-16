@@ -46,10 +46,16 @@
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="9Xp-Er-RID">
                                 <rect key="frame" x="0.0" y="0.0" width="145.5" height="12"/>
                                 <state key="normal" image="likeOff"/>
+                                <connections>
+                                    <action selector="didTapLike:" destination="KMn-dh-AlQ" eventType="touchUpInside" id="TZP-wa-v3r"/>
+                                </connections>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="gnk-91-ddd">
                                 <rect key="frame" x="185.5" y="0.0" width="145.5" height="12"/>
                                 <state key="normal" image="retweetOff"/>
+                                <connections>
+                                    <action selector="didTapRetweet:" destination="KMn-dh-AlQ" eventType="touchUpInside" id="xOf-OP-Sj1"/>
+                                </connections>
                             </button>
                         </subviews>
                         <constraints>

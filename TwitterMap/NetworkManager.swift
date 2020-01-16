@@ -16,13 +16,14 @@ class APIClient {
     
     public static var fetchedTweets = [Tweet]()
     
-    public static let client = TWTRAPIClient()
+    public static var twtrTweets = [TWTRTweet]()
     
-    private static let today = Date()
-    private static let thirtyDaysAgo = Calendar.current.date(byAdding: .day, value: -30, to: today)!
+    public static var currentUser: TweetUser?
+    
+    public static var client = TWTRAPIClient()
     
     static func getTweetsFrom(long: Double, lat: Double, radius: Double, completion: @escaping(Result<Response, AFError>) -> ()) {
-        let jsonDecoder = JSONDecoder()
+        let jsonDecoder = TwitterDecoder.jsonDecoder
         params.removeAll()
         params["q"] = ""
         params["tweet_mode"] = "extended"
@@ -31,7 +32,6 @@ class APIClient {
         print("query: \("\(lat),\(long),\(radius)km")")
         DispatchQueue.global(qos: .background).async {
             AF.request("https://api.twitter.com/1.1/search/tweets.json", method: .get, parameters: params, encoding: URLEncoding.default, headers: HTTPHeaders.init(APIClient.headers), interceptor: nil).responseDecodable (decoder: jsonDecoder){ (response: AFDataResponse<Response>) in
-                print("RESULT: \(response)")
                 DispatchQueue.main.async {
                     completion(response.result)
                 }
@@ -40,7 +40,7 @@ class APIClient {
     }
     
     static func search(for string: String, lang: String,  completion: @escaping(Result<Response, AFError>) -> ()) {
-        let jsonDecoder = JSONDecoder()
+        let jsonDecoder = TwitterDecoder.jsonDecoder
         params.removeAll()
         params["q"] = string
         params["tweet_mode"] = "extended"
@@ -55,10 +55,31 @@ class APIClient {
         }
     }
     
-    static func downloadImage(for url: URL, completion: @escaping(Result<Data, AFError>)->()) {
+    static func login(with viewController: UIViewController) {
+        TWTRTwitter.sharedInstance().logIn(with: viewController) { (session, error) in
+            if (session != nil) {
+                print("signed in as \(String(describing: session?.userName))");
+                
+                viewController.dismiss(animated: true) {
+                    print("Logged in ")
+                }
+                self.client = TWTRAPIClient.withCurrentUser()
+            } else {
+                print("error: \(error?.localizedDescription ?? "")");
+            }
+        }
+    }
+    
+    static func fetchTWTRTweets(tweets: [Tweet]) {
         DispatchQueue.global(qos: .background).async {
-            AF.download(url).responseData { (response) in
-                completion(response.result)
+            self.client.loadTweets(withIDs: tweets.map({ (tweet) -> String in
+                return String(tweet.id)
+            })) { (tweets, error) in
+                if let tweets = tweets {
+                    self.twtrTweets = tweets
+                } else {
+                    print(error!)
+                }
             }
         }
     }
